@@ -51,6 +51,32 @@
     sections.forEach(function (s) { if (s) io.observe(s); });
   }
 
+  /* ---------- Reading events (GoatCounter) ---------- */
+  // Anonymous counts only: how many visits stayed 30s / 2min and how many reached the projects.
+  var sent = {};
+  var countEvent = function (name, title) {
+    if (sent[name] || !window.goatcounter || !window.goatcounter.count) return;
+    sent[name] = true;
+    window.goatcounter.count({ path: name, title: title, event: true });
+  };
+  // Count only time the tab is actually visible, so a background tab doesn't add up.
+  var visibleSeconds = 0;
+  var readTimer = setInterval(function () {
+    if (document.visibilityState !== 'visible') return;
+    visibleSeconds += 1;
+    if (visibleSeconds === 30) countEvent('read-30s', 'Stayed 30 seconds');
+    if (visibleSeconds === 120) { countEvent('read-2m', 'Stayed 2 minutes'); clearInterval(readTimer); }
+  }, 1000);
+  var work = document.getElementById('work');
+  if (work && 'IntersectionObserver' in window) {
+    var workIo = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      countEvent('saw-projects', 'Reached the projects');
+      workIo.disconnect();
+    }, { rootMargin: '0px 0px -50% 0px' });
+    workIo.observe(work);
+  }
+
   /* ---------- Timeline scroll buttons ---------- */
   var track = document.querySelector('.timeline-track');
   var scrollBtns = Array.prototype.slice.call(document.querySelectorAll('[data-scroll]'));
