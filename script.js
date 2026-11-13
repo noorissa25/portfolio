@@ -121,6 +121,9 @@
         if (next) { e.preventDefault(); select(next, true); }
       });
     });
+    // Every panel ships visible in the HTML so crawlers and no-JS readers get the full
+    // case study; collapse to the selected tab only once the script is running.
+    select(tabs.filter(function (t) { return t.getAttribute('aria-selected') === 'true'; })[0] || tabs[0], false);
   });
 
   /* ---------- Email ---------- */

@@ -133,7 +133,8 @@ section[id] { scroll-margin-top: 88px; }
 /* ---------- Header ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  display: grid; grid-template-columns: 1fr auto 1fr; grid-template-areas: "brand links nav";
+  align-items: center; gap: 24px;
   padding: 18px var(--gutter);
   background: color-mix(in srgb, var(--paper) 88%, transparent);
   backdrop-filter: saturate(1.2) blur(10px);
@@ -142,6 +143,8 @@ section[id] { scroll-margin-top: 88px; }
 }
 .site-header.is-scrolled { box-shadow: 0 1px 0 var(--line); }
 
+.brand { grid-area: brand; justify-self: start; }
+.site-nav { grid-area: nav; justify-self: end; }
 .brand {
   display: inline-flex; align-items: center; gap: 12px;
   text-decoration: none; min-height: 44px;
@@ -149,6 +152,27 @@ section[id] { scroll-margin-top: 88px; }
 .brand-mark { width: 34px; height: 34px; color: var(--ink); }
 .brand-dot { fill: var(--lamp); filter: drop-shadow(0 0 4px var(--lamp-glow)); }
 .brand-name { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: -0.01em; }
+
+/* Email, LinkedIn and GitHub: one soft pill in the middle of the bar */
+.header-links {
+  grid-area: links; display: flex; gap: 2px; padding: 4px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+}
+.header-link {
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px;
+  border: 0; border-radius: 999px; background: transparent;
+  color: var(--ink-soft); font: inherit; font-size: 0.9rem; font-weight: 500;
+  text-decoration: none; cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.header-link:hover { color: var(--teal); background: var(--tag-work); }
+.header-link svg { width: 17px; height: 17px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.header-link svg.logo { width: 15px; height: 15px; fill: currentColor; stroke: none; }
+@media (max-width: 900px) {
+  .header-link-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .header-link { width: 40px; padding: 0; justify-content: center; }
+}
 
 .site-nav ul { display: flex; gap: clamp(4px, 2vw, 28px); }
 .site-nav a {
@@ -170,7 +194,9 @@ section[id] { scroll-margin-top: 88px; }
 .site-nav a[aria-current="true"]::after { transform: scaleX(1); }
 
 @media (max-width: 640px) {
-  .site-header { flex-direction: column; align-items: flex-start; gap: 0; padding-block: 10px 4px; }
+  .site-header { grid-template-columns: 1fr auto; grid-template-areas: "brand links" "nav nav"; gap: 0 12px; padding-block: 10px 4px; }
+  .header-links { padding: 3px; }
+  .header-link { width: 38px; height: 38px; }
   .site-nav { width: 100%; }
   .site-nav ul { justify-content: space-between; gap: 0; margin-inline: -4px; }
   .site-nav a { --pad: 9px; font-size: 0.92rem; }
@@ -448,7 +474,7 @@ section[id] { scroll-margin-top: 88px; }
 .text-link:hover { text-decoration-color: currentColor; }
 .project-links { display: flex; flex-wrap: wrap; column-gap: 24px; margin-top: 8px; }
 .project-links .text-link { margin-top: 0; }
-.text-link svg, .social svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.text-link svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Visuals */
 .project-visual {
@@ -472,33 +498,49 @@ section[id] { scroll-margin-top: 88px; }
 }
 
 /* ---------- Contact ---------- */
-.contact {
+/* Two rows on wide screens: the invitation (heading | text + buttons), then
+   stack | outside of work with the photos running full width underneath. */
+.contact { padding-block: 120px; border-top: 1px solid var(--line); }
+.contact-side {
   display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  gap: clamp(40px, 7vw, 120px);
-  padding-block: 120px;
-  border-top: 1px solid var(--line);
+  column-gap: clamp(40px, 7vw, 120px);
 }
-@media (max-width: 900px) { .contact { grid-template-columns: 1fr; } }
-.contact-main > p:not(.email-row) { margin-top: 24px; max-width: 44ch; color: var(--ink-soft); }
-.email-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
-.email {
-  padding: 0; border: 0; background-color: transparent; color: inherit; cursor: pointer; text-align: left;
-  font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 2.1rem);
-  text-decoration: none; overflow-wrap: anywhere;
-  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-  transition: background-size 0.35s var(--ease-out);
+.contact-body { margin-top: 28px; }
+.contact-body > p { max-width: 52ch; color: var(--ink-soft); }
+.contact-side { margin-top: 96px; padding-top: 72px; border-top: 1px solid var(--line); row-gap: 56px; }
+.contact-side .free-photos { grid-column: 1 / -1; max-width: none; margin-top: 0; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (max-width: 900px) {
+  .contact-side { grid-template-columns: 1fr; }
+  .contact-body { margin-top: 24px; }
+  .contact-side { margin-top: 64px; padding-top: 48px; row-gap: 48px; }
+  .contact-side .free-photos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-.email:hover { background-size: 100% 1px; }
-.social { display: flex; gap: 28px; margin-top: 32px; }
-.social a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; text-decoration: none; font-weight: 500; }
-.social a:hover { color: var(--teal); }
+.contact-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.contact-btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px;
+  border: 1px solid var(--line); border-radius: 999px; background: transparent;
+  color: var(--ink); font: inherit; font-weight: 500; text-decoration: none; cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.contact-btn:hover { color: var(--teal); border-color: var(--teal); }
+.contact-btn svg.logo { width: 16px; height: 16px; flex: none; fill: currentColor; }
+.contact-btn-primary { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.contact-btn-primary:hover { background: var(--teal); border-color: var(--teal); color: var(--paper); }
+.contact-btn-primary span { transition: transform 0.2s var(--ease-out); }
+.contact-btn-primary:hover span { transform: translateX(3px); }
 
 .side-title { font-family: var(--font-display); font-weight: 400; font-size: 1.75rem; letter-spacing: -0.01em; }
 .side-title:not(:first-child) { margin-top: 48px; }
-.dash-list { margin-top: 16px; max-width: 62ch; }
-.dash-list li { position: relative; padding-left: 26px; color: var(--ink-soft); }
-.dash-list li + li { margin-top: 14px; }
-.dash-list li::before { content: ""; position: absolute; left: 0; top: 0.8em; width: 14px; height: 1.5px; background: var(--teal); }
+/* Interests: each line gets a small tinted icon, echoing the photo tiles below */
+.interest-list { margin-top: 20px; max-width: 62ch; display: grid; gap: 16px; }
+.interest-list li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px; align-items: center; color: var(--ink-soft); }
+.interest-list strong { color: var(--ink); font-weight: 600; }
+.interest-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: var(--ink); }
+.interest-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tint-sage { background: var(--tag-work); }
+.tint-sand { background: var(--tag-teach); }
+.tint-blush { background: var(--tag-found); }
+.tint-sky { background: var(--tag-school); }
 .stack-list { margin-top: 12px; max-width: 62ch; color: var(--ink-soft); }
 .stack-groups { margin: 12px 0 0; max-width: 62ch; display: grid; gap: 8px; }
 .stack-groups div { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 12px; align-items: baseline; }
